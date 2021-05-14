@@ -4,19 +4,14 @@ exports.validateIncomingData = (req,res,next)=>{
 
     const errors = [];
 
-    if(req.body.name=="")
+    if(req.body.name == "")
     {
-        errors.push("Sorry this Name is already in use, ")
+        errors.push("Sorry name cannot be blank")
     }
 
-    if(req.body.lastName=="")
+    if(req.body.rarity == "")
     {
-        errors.push("You must enter a lastname")
-    }
-
-    if(req.body.email=="")
-    {
-        errors.push("You must enter an email")
+        errors.push("Sorry rarity cannot be blank")    
     }
 
     if(errors.length == 0)
@@ -26,7 +21,7 @@ exports.validateIncomingData = (req,res,next)=>{
     else
     {
         res.status(400).json({
-            message: "You have errors in your data",
+            message: "Oops there are some errors in your code ",
             errors
         })
     }

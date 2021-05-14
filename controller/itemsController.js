@@ -10,8 +10,9 @@ router.get(`/:name`, itemsService.getASpecificItem);
 
 router.post(`/`, validation.validateIncomingData, itemsService.createAnItem);
 
-router.put(`/:name`, validation.validateIncomingData, itemsService.updateAnItem);
+router.put(`/:name`, validation.validateIncomingData,itemsService.updateAnItem);
 
 router.delete(`/:name`, itemsService.deleteAnItem);
 
 module.exports = router;
+

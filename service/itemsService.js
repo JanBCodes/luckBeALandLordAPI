@@ -37,19 +37,16 @@ exports.getASpecificItem = (req,res) => {
 
         if(item)
         {
-
             res.status(200).json({
                 message : `Item Details of ${bodyName}`,
                 results : item
             })
-
         }
         else
         {
             res.status(404).json({
                 message : `Item  with name : ${bodyName} not found`
             })
-
         }
     })
     .catch(err => {
@@ -63,20 +60,39 @@ exports.getASpecificItem = (req,res) => {
 };
 
 exports.createAnItem = (req,res)=>{
-
-
+   
     const newItem  = req.body;
-    
-    const item = new itemModel(newItem);
 
-    item.save()
-    .then(item => {
+    itemModel.findOne({ name: `${newItem.name}`}) 
+    .then( item => {
+        console.log(item)
 
-        res.status(200).json({
-            message : `A new item was successfully created`,
-            results : item
-        })
-
+        if(item)
+        {
+            res.status(403).json({
+                message : `Sorry user ${newItem.name} is already in use`,
+            })
+        }
+        else
+        {
+            const item = new itemModel(newItem);
+            item.save()
+            .then(item => {
+        
+                res.status(201).json({
+                    message : `A new item was successfully created`,
+                    results : item
+                })
+        
+            })
+            .catch(err => {
+        
+                res.status(500).json({
+                    message : `Error  ${err}`
+                })
+        
+            }) 
+        }
     })
     .catch(err => {
 
@@ -85,7 +101,6 @@ exports.createAnItem = (req,res)=>{
         })
 
     }) 
-
 };
 
 
@@ -94,13 +109,13 @@ exports.deleteAnItem = (req,res)=>{
 
     const bodyName = req.params.name
 
-    console.log(bodyName)
+// console.log(bodyName)
  
     itemModel.findOneAndDelete({ name: `${bodyName}`}) 
 
     .then(item => {
 
-        console.log(item)
+        // console.log(item)
         if(item)
         {
             res.status(200).json({
@@ -114,7 +129,6 @@ exports.deleteAnItem = (req,res)=>{
                 message : `Item named ${bodyName} was not found`
             })
         }
-
     })
     .catch(err => {
 
@@ -126,29 +140,33 @@ exports.deleteAnItem = (req,res)=>{
 };
 
 //-----------------------------------------------
-exports.updateAnItem = (req,res)=>{
+exports.updateAnItem = (req,res) => {
 
-    const updatedDate = req.body;
+    const updatedData = req.body;
+    const identifier = req.params.name;
 
-    const bodyName = req.params
+    // condition - how to find user
+    // define replacement data
+    // default passes old data 
 
-    console.log(bodyName)
-    console.log(updatedDate)
-
-    itemModel.findOneAndUpdate(bodyName,updatedDate,{new:true})
+    itemModel.findOneAndUpdate({name: identifier}, updatedData, {new:true})
     .then(item => {
+
+        // console.log(`Item: ${item}`)
+        // console.log(`Params Name: ${identifier}`)
+        // console.log(`updatedData: ${updatedData}`)
+
         if(item)
         {
             res.status(200).json({
-                message : `Item with the name (${bodyName}) was updated successfully `,
+                message : `Item with the name ${identifier} was updated successfully `,
                 data : item
             })
-
         }
         else
         {
             res.status(404).json({
-                message : `Item with the name : ${bodyName} not found`,
+                message : `Item with the name : ${identifier} not found`
             })
         }
 

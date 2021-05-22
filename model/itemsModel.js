@@ -28,6 +28,12 @@ const itemSchema = new Schema({
         required: false
     },
 
+    itemImage:
+    {
+        type: String,
+        default: "default.jpg"
+    },
+
     dateCreated:
     {
         type:Date,

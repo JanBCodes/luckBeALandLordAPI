@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid');
 
 const itemModel = require("../model/itemsModel.js")
 
@@ -59,14 +60,13 @@ exports.getASpecificItem = (req,res) => {
 
 };
 
+//  --------------------------------------------------------------------
 exports.createAnItem = (req,res)=>{
    
-    const newItem  = req.body;
+    const newItem  = req.body
 
     itemModel.findOne({ name: `${newItem.name}`}) 
     .then( item => {
-        console.log(item)
-
         if(item)
         {
             res.status(403).json({
@@ -74,24 +74,59 @@ exports.createAnItem = (req,res)=>{
             })
         }
         else
-        {
-            const item = new itemModel(newItem);
-            item.save()
-            .then(item => {
-        
-                res.status(201).json({
-                    message : `A new item was successfully created`,
-                    results : item
+        { 
+            const uploadedPicType = req.files.itemImage.mimetype
+
+            console.log(`uploadedPicType : ${uploadedPicType}`)
+
+
+            if(uploadedPicType.includes("image")) //return true/false
+            {
+                
+                const uploadedPicName = req.files.itemImage.name
+                const uuid = uuidv4();
+
+                const uuidPicName = `${uuid}_${uploadedPicName}`
+  
+                const absoluteAddress = `${process.cwd()}/assets/img/itemUploads/${uuidPicName}`
+
+                newItem.itemImage = uuidPicName
+                req.files.itemImage.mv(absoluteAddress)
+                .then(() => {
+
+                    console.log(newItem)
+ 
+                    const item = new itemModel(newItem);
+                    item.save()
+                    .then(item => {
+                
+                        res.status(201).json({
+                            message : `A new item was successfully created`,
+                            results : item
+                        })
+                
+                    })
+                    .catch(err => {
+                
+                        res.status(500).json({
+                            message : `Error  ${err}`
+                        })
+                
+                    }) 
                 })
-        
-            })
-            .catch(err => {
-        
-                res.status(500).json({
-                    message : `Error  ${err}`
+                .catch(err => {        
+                    res.status(500).json({
+                        message : `Error  ${err}`
+                   })
                 })
-        
-            }) 
+            }
+            else
+            {                
+                res.status(400).json({
+                    message : `The image you have uploaded should be in an Image Format`,
+                })
+            }
+
         }
     })
     .catch(err => {
@@ -101,9 +136,13 @@ exports.createAnItem = (req,res)=>{
         })
 
     }) 
+
+
 };
 
 
+
+// -------------------------------------------------------------------------------------
 
 exports.deleteAnItem = (req,res)=>{
 
@@ -178,3 +217,6 @@ exports.updateAnItem = (req,res) => {
         })
     }) 
 };
+
+
+
